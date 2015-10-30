@@ -1,21 +1,24 @@
 'use strict';
 
 var fs = require('fs');
-var Bitmap = require(__dirname + '/lib/Bitmap');
 var transform = require(__dirname + '/lib/transform');
 
 var srcFile = process.argv[2] || 'bitmap1.bmp';
 var destFile = process.argv[3] || 'transformed_' + srcFile;
 
-// Open file using fs and read it into a buffer
-var bitmap = fs.readFileSync(srcFile);
+function app() {
+  fs.readFile(srcFile, function(err, data) {
+    if (err) throw err;
 
-// Convert buffer into a Javascript Object
-var bitmapObj = new Bitmap(bitmap);
+    if (data.toString('utf-8', 0, 2) !== 'BM')
+      throw new Error('Not a BM file!');
 
-bitmap = transform(bitmap, bitmapObj);
+    var transformed = transform(data);
 
-fs.writeFileSync(destFile, bitmap);
-// Run a transform on that Javascript Object.
-// Turn the transformed object back into a buffer.
-// Write that buffer to a new file.
+    fs.writeFile(destFile, transformed, function(err) {
+      if (err) throw err;
+    });
+  });
+}
+
+app();
